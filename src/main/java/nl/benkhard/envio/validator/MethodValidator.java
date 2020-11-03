@@ -1,11 +1,12 @@
 package nl.benkhard.envio.validator;
 
-import com.sun.tools.javac.util.List;
+
 import nl.benkhard.envio.exception.InaccessibleMethodException;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import java.security.InvalidParameterException;
+import java.util.List;
 
 public class MethodValidator {
 
