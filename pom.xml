@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <name>Env.io</name>
+    <description>Env.io helps developers manage their environmental variables using annotations. Either access them safely through optionals or automatically parse them into any class you want.</description>
+    <url>https://github.com/tcbenkhard/envio</url>
+    <developers>
+        <developer>
+            <name>Timo Benkhard</name>
+            <email>timo@benkhard.nl</email>
+            <organization>Benkhard IT</organization>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git://github.com/tcbenkhard/envio.git</connection>
+        <developerConnection>scm:git:git@github.com:tcbenkhard/envio.git</developerConnection>
+        <url>https://github.com/tcbenkhard/envio.git</url>
+    </scm>
 
     <groupId>nl.benkhard</groupId>
     <artifactId>envio</artifactId>
     <packaging>jar</packaging>
-    <version>1.2</version>
+    <version>1.3-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
