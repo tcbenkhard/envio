@@ -6,6 +6,8 @@ import lombok.SneakyThrows;
 import nl.benkhard.envio.annotation.EnvironmentVariable;
 import nl.benkhard.envio.annotation.EnvironmentVariables;
 import nl.benkhard.envio.builder.EnvironmentClassTypeSpecBuilder;
+import nl.benkhard.envio.validator.MethodValidator;
+import nl.benkhard.envio.validator.TypeValidator;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -28,9 +30,11 @@ public class EnvironmentVariablesProcessor extends AbstractProcessor {
             for(Element element : roundEnv.getElementsAnnotatedWith(annotation)) {
                 System.out.println(String.format("Processing: %s on %s", annotation.getSimpleName(), element.getSimpleName()));
                 if(annotation.getSimpleName().toString().equals("EnvironmentVariables")) {
-                    processMultipleVariables(builder, annotation, element);
+                    EnvironmentVariables environmentVariables = element.getAnnotation(EnvironmentVariables.class);
+                    processVariables(builder, element, environmentVariables.value());
                 } else {
-                    processSingleVariable(builder, annotation, element);
+                    EnvironmentVariable environmentVariable = element.getAnnotation(EnvironmentVariable.class);
+                    processVariables(builder, element, environmentVariable);
                 }
             }
         }
@@ -44,21 +48,13 @@ public class EnvironmentVariablesProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void processMultipleVariables(EnvironmentClassTypeSpecBuilder builder, TypeElement annotation, Element element) {
-        EnvironmentVariables environmentVariables = element.getAnnotation(EnvironmentVariables.class);
+    private void processVariables(EnvironmentClassTypeSpecBuilder builder, Element element, EnvironmentVariable... variables) {
         if(element instanceof TypeElement) {
-            builder.addTypeAnnotations(environmentVariables.value());
+            TypeValidator.validate((TypeElement) element);
+            builder.addTypeAnnotations(variables);
         } else if(element instanceof ExecutableElement) {
-            builder.addExecutableAnnotations(environmentVariables.value(), (ExecutableElement)element);
-        }
-    }
-
-    private void processSingleVariable(EnvironmentClassTypeSpecBuilder builder, TypeElement annotation, Element element) {
-        EnvironmentVariable environmentVariable = element.getAnnotation(EnvironmentVariable.class);
-        if(element instanceof TypeElement) {
-            builder.addTypeAnnotation(environmentVariable);
-        } else if(element instanceof ExecutableElement) {
-            builder.addExecutableAnnotation(environmentVariable, (ExecutableElement)element);
+            MethodValidator.validate((ExecutableElement) element);
+            builder.addExecutableAnnotations((ExecutableElement)element, variables);
         }
     }
 }

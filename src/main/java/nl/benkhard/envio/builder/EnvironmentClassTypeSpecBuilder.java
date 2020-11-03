@@ -4,6 +4,7 @@ import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.*;
 import lombok.SneakyThrows;
 import nl.benkhard.envio.annotation.EnvironmentVariable;
+import nl.benkhard.envio.validator.TypeValidator;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -24,6 +25,18 @@ public class EnvironmentClassTypeSpecBuilder {
     public TypeSpec build() {
         builder.addModifiers(Modifier.PUBLIC);
         return builder.build();
+    }
+
+    public void addTypeAnnotations(EnvironmentVariable... variables) {
+        Arrays.stream(variables).forEach(this::addTypeAnnotation);
+    }
+
+    public void addExecutableAnnotations(ExecutableElement element, EnvironmentVariable... variables) {
+        Arrays.stream(variables).forEach(var -> addExecutableAnnotation(var, element));
+    }
+
+    public int getVariableCount() {
+        return variableCount;
     }
 
     private void generateGetter(EnvironmentVariable variable) {
@@ -57,20 +70,12 @@ public class EnvironmentClassTypeSpecBuilder {
                 .build();
     }
 
-    public void addTypeAnnotations(EnvironmentVariable[] variables) {
-        Arrays.stream(variables).forEach(this::addTypeAnnotation);
-    }
-
-    public void addTypeAnnotation(EnvironmentVariable environmentVariable) {
+    private void addTypeAnnotation(EnvironmentVariable environmentVariable) {
         generateGetter(environmentVariable);
         variableCount++;
     }
 
-    public void addExecutableAnnotations(EnvironmentVariable[] variables, ExecutableElement element) {
-        Arrays.stream(variables).forEach(var -> addExecutableAnnotation(var, element));
-    }
-
-    public void addExecutableAnnotation(EnvironmentVariable variable, ExecutableElement element) {
+    private void addExecutableAnnotation(EnvironmentVariable variable, ExecutableElement element) {
         generateWrappingGetter(variable, element);
         variableCount++;
     }
@@ -98,7 +103,7 @@ public class EnvironmentClassTypeSpecBuilder {
                 .endControlFlow()
                 .addStatement(String.format("%s parsedValue = %s.%s(systemValue)"
                         , element.getReturnType().toString()
-                        , ((TypeElement)element.getEnclosingElement()).getQualifiedName()
+                        , ((TypeElement) element.getEnclosingElement()).getQualifiedName()
                         , element.getSimpleName()))
                 .addStatement(String.format("return Optional.ofNullable(parsedValue)"))
                 .build();
@@ -109,13 +114,9 @@ public class EnvironmentClassTypeSpecBuilder {
                 .addStatement(String.format("String systemValue = System.getenv(\"%s\")", variable.name()))
                 .addStatement(String.format("%s parsedValue = %s.%s(systemValue)"
                         , element.getReturnType().toString()
-                        , ((TypeElement)element.getEnclosingElement()).getQualifiedName()
+                        , ((TypeElement) element.getEnclosingElement()).getQualifiedName()
                         , element.getSimpleName()))
                 .addStatement(String.format("return parsedValue"))
                 .build();
-    }
-
-    public int getVariableCount() {
-        return variableCount;
     }
 }
