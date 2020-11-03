@@ -6,12 +6,12 @@ import nl.benkhard.envio.exception.InaccessibleMethodException;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import java.security.InvalidParameterException;
-import java.util.List;
+import java.util.Arrays;
 
 public class MethodValidator {
 
     public static void validate(ExecutableElement element) {
-        if(!element.getModifiers().containsAll(List.of(Modifier.STATIC, Modifier.PUBLIC)))
+        if(!element.getModifiers().containsAll(Arrays.asList(Modifier.STATIC, Modifier.PUBLIC)))
             throw new InaccessibleMethodException(element.getSimpleName().toString());
 
         if(element.getParameters().size() != 1 && !element.getParameters().get(0).asType().toString().equals("String"))
