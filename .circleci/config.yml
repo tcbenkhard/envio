@@ -3,8 +3,32 @@ version: 2.1
 orbs:
   maven: circleci/maven@0.0.12
 
-workflows:
-  maven_test:
-    jobs:
-      - maven/test # checkout, build, test, and upload test results
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:stretch
+    steps:
+      - checkout
+      - run: ./mvnw package
+  deploy:
+    docker:
+      - image: circleci/openjdk:stretch
+    steps:
+      - checkout
+      - run: ./mvnw deploy
+  release:
+    docker:
+      - image: circleci/openjdk:stretch
+    steps:
+      - checkout
+      - run: ./mvnw release:prepare
+      - run: ./mvnw release:perform
 
+workflows:
+  feature:
+    when:
+      not:
+        equal: [ master, << pipeline.git.branch >> ]
+    jobs:
+      - build
+      - deploy
