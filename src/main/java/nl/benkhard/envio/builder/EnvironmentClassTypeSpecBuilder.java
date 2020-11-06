@@ -4,7 +4,6 @@ import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.*;
 import lombok.SneakyThrows;
 import nl.benkhard.envio.annotation.EnvironmentVariable;
-import nl.benkhard.envio.validator.TypeValidator;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;

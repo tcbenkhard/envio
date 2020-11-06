@@ -8,6 +8,7 @@ import java.lang.annotation.*;
 public @interface EnvironmentVariable {
     String name();
     String description() default "";
+    String defaultValue() default "";
     boolean required() default false;
 }
 
