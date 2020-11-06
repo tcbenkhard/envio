@@ -8,13 +8,10 @@ import nl.benkhard.envio.annotation.EnvironmentVariables;
 import nl.benkhard.envio.builder.EnvironmentClassTypeSpecBuilder;
 import nl.benkhard.envio.model.DeclaredVariable;
 import nl.benkhard.envio.validator.DeclaredVariableValidator;
-import nl.benkhard.envio.validator.MethodValidator;
-import nl.benkhard.envio.validator.TypeValidator;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +27,6 @@ public class EnvironmentVariablesProcessor extends AbstractProcessor {
     @SneakyThrows
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        EnvironmentClassTypeSpecBuilder builder = new EnvironmentClassTypeSpecBuilder();
         List<DeclaredVariable> declaredVariables = new ArrayList<>();
 
         for(TypeElement annotation : annotations) {
@@ -41,13 +37,14 @@ public class EnvironmentVariablesProcessor extends AbstractProcessor {
         }
 
         DeclaredVariableValidator.validateAll(declaredVariables);
-        // build class from declaredVariables
-            // processVariables(builder, element, environmentVariables.value());
-        // write to file
 
-        if(builder.getVariableCount() == 0) return true;
+        EnvironmentClassTypeSpecBuilder classBuilder = new EnvironmentClassTypeSpecBuilder();
+        classBuilder.addDeclaredVariables(declaredVariables);
+        classBuilder.build();
 
-        JavaFile.builder("nl.benkhard.envio", builder.build())
+        if(classBuilder.getVariableCount() == 0) return true;
+
+        JavaFile.builder("nl.benkhard.envio", classBuilder.build())
                 .build()
                 .writeTo(processingEnv.getFiler());
 
