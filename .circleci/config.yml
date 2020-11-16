@@ -9,13 +9,13 @@ jobs:
       - image: circleci/openjdk:stretch
     steps:
       - checkout
-      - run: ./mvnw package
+      - run: mvn package
   deploy:
     docker:
       - image: circleci/openjdk:stretch
     steps:
       - checkout
-      - run: ./mvnw deploy
+      - run: mvn deploy
   release:
     docker:
       - image: circleci/openjdk:stretch
@@ -25,10 +25,10 @@ jobs:
       - run: ./mvnw release:perform
 
 workflows:
-  feature:
-    when:
-      not:
-        equal: [ master, << pipeline.git.branch >> ]
+  version: 2
+  pipeline:
     jobs:
       - build
-      - deploy
+      - deploy:
+          requires:
+            - build

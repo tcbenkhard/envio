@@ -6,15 +6,18 @@ import lombok.SneakyThrows;
 import nl.benkhard.envio.annotation.EnvironmentVariable;
 import nl.benkhard.envio.annotation.EnvironmentVariables;
 import nl.benkhard.envio.builder.EnvironmentClassTypeSpecBuilder;
-import nl.benkhard.envio.validator.MethodValidator;
-import nl.benkhard.envio.validator.TypeValidator;
+import nl.benkhard.envio.model.DeclaredVariable;
+import nl.benkhard.envio.validator.DeclaredVariableValidator;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes("nl.benkhard.envio.annotation.*")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -24,37 +27,37 @@ public class EnvironmentVariablesProcessor extends AbstractProcessor {
     @SneakyThrows
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        EnvironmentClassTypeSpecBuilder builder = new EnvironmentClassTypeSpecBuilder();
+        List<DeclaredVariable> declaredVariables = new ArrayList<>();
 
         for(TypeElement annotation : annotations) {
             for(Element element : roundEnv.getElementsAnnotatedWith(annotation)) {
-                System.out.println(String.format("Processing: %s on %s", annotation.getSimpleName(), element.getSimpleName()));
-                if(annotation.getSimpleName().toString().equals("EnvironmentVariables")) {
-                    EnvironmentVariables environmentVariables = element.getAnnotation(EnvironmentVariables.class);
-                    processVariables(builder, element, environmentVariables.value());
-                } else {
-                    EnvironmentVariable environmentVariable = element.getAnnotation(EnvironmentVariable.class);
-                    processVariables(builder, element, environmentVariable);
-                }
+                List<DeclaredVariable> extractedVariables = extractDeclaredVariables(annotation, element);
+                declaredVariables.addAll(extractedVariables);
             }
         }
 
-        if(builder.getVariableCount() == 0) return true;
+        DeclaredVariableValidator.validateAll(declaredVariables);
 
-        JavaFile.builder("nl.benkhard.envio", builder.build())
+        EnvironmentClassTypeSpecBuilder classBuilder = new EnvironmentClassTypeSpecBuilder();
+        classBuilder.addDeclaredVariables(declaredVariables);
+        classBuilder.build();
+
+        if(classBuilder.getVariableCount() == 0) return true;
+
+        JavaFile.builder("nl.benkhard.envio", classBuilder.build())
                 .build()
                 .writeTo(processingEnv.getFiler());
 
         return true;
     }
 
-    private void processVariables(EnvironmentClassTypeSpecBuilder builder, Element element, EnvironmentVariable... variables) {
-        if(element instanceof TypeElement) {
-            TypeValidator.validate((TypeElement) element);
-            builder.addTypeAnnotations(variables);
-        } else if(element instanceof ExecutableElement) {
-            MethodValidator.validate((ExecutableElement) element);
-            builder.addExecutableAnnotations((ExecutableElement)element, variables);
+    private List<DeclaredVariable> extractDeclaredVariables(TypeElement annotation, Element element) {
+        if(annotation.getSimpleName().toString().equals(EnvironmentVariables.class.getSimpleName())) {
+            return Arrays.stream(element.getAnnotation(EnvironmentVariables.class).value())
+                    .map(variable -> DeclaredVariable.from(variable, element))
+                    .collect(Collectors.toList());
+        } else {
+            return Arrays.asList(DeclaredVariable.from(element.getAnnotation(EnvironmentVariable.class), element));
         }
     }
 }
