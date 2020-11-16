@@ -2,6 +2,7 @@ package nl.benkhard.envio.validator;
 
 import nl.benkhard.envio.exception.IllegalTypeAnnotationException;
 import nl.benkhard.envio.exception.InaccessibleMethodException;
+import nl.benkhard.envio.exception.InvalidParametersException;
 import nl.benkhard.envio.exception.ValidationException;
 import nl.benkhard.envio.model.DeclaredVariable;
 
@@ -35,9 +36,7 @@ public class DeclaredVariableValidator {
             throw new InaccessibleMethodException(element.getSimpleName().toString());
 
         if(element.getParameters().size() != 1 && !element.getParameters().get(0).asType().toString().equals("String"))
-            throw new InvalidParameterException(
-                    String.format("Methods annotated with EnvironmentVariable can have only 1 String as a parameter! " +
-                            "Violation on method '%s'.", element.getSimpleName()));
+            throw new InvalidParametersException(element.getSimpleName().toString());
     }
 
     private static void validateClass(DeclaredVariable variable) throws ValidationException{

@@ -1,7 +1,6 @@
 package nl.benkhard.envio.model;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 
 public class OptionalVariable extends DeclaredVariable {
 

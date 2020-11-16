@@ -2,7 +2,6 @@ package nl.benkhard.envio.builder;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import lombok.SneakyThrows;
 import nl.benkhard.envio.model.DeclaredVariable;
 import nl.benkhard.envio.util.NameUtils;
