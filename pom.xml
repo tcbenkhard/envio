@@ -24,12 +24,13 @@
         <connection>scm:git:git://github.com/tcbenkhard/envio.git</connection>
         <developerConnection>scm:git:git@github.com:tcbenkhard/envio.git</developerConnection>
         <url>https://github.com/tcbenkhard/envio.git</url>
-    </scm>
+      <tag>envio-1.3</tag>
+  </scm>
 
     <groupId>nl.benkhard</groupId>
     <artifactId>envio</artifactId>
     <packaging>jar</packaging>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
